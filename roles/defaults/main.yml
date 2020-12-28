@@ -1,0 +1,4 @@
+---
+#переменые записываем в default, не высокий приоритет при переоприделении.
+  elastic_version: "7.10.1"
+  elastic_home: "/opt/elastic/{{ elastic_version }}"

@@ -1,11 +1,23 @@
 ---
 #Сюда размещаем набор Tasks, в отличии от playbook здесь уже нет PLAY, только список Tasks
+  - name: Create group for Elasticsearch
+    group:
+      name: elasticsearch
+      state: present
+    tags: elastic
+  - name: Add user for Elasticsearch
+    user:
+      name: elasticsearch
+      group: elasticsearch
+      shell: /bin/bash
+    tags: elastic       
   - name: Upload tar.gz Elasticsearch from remote URL
-    get_url:
+    get_url: #Мы будем ставить через скачивание архива, а не через репозиторий.
       url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ elastic_version }}-linux-x86_64.tar.gz"
+      #если указать просто директорию без имени файла, то имя файла будет взято из source
       dest: "/tmp/elasticsearch-{{ elastic_version }}-linux-x86_64.tar.gz"
       mode: 0755
-      timeout: 60
+      timeout: 60 #увеличиваем, так как 10 сек (по умолчанию) не хватает для скачки и будет ошибка
       force: true
     register: get_elastic
     until: get_elastic is succeeded
@@ -21,7 +33,8 @@
       copy: false
       src: "/tmp/elasticsearch-{{ elastic_version }}-linux-x86_64.tar.gz"
       dest: "{{ elastic_home }}"
-      extra_opts: [--strip-components=1]
+      extra_opts: [--strip-components=1] #Убираем одну директурию из назначения
+      #получим /opt/elastic/7.10.1/ вместо /opt/elastic/7.10.1/elasticsearch-7.10.1/
       creates: "{{ elastic_home }}/bin/elasticsearch"
     tags:
       - skip_ansible_lint
@@ -29,6 +42,26 @@
   - name: Set environment Elastic
     become: yes
     template:
-      src: templates/elk.sh.j2
+      src: elk.sh.j2
       dest: /etc/profile.d/elk.sh
+      #backup: true #каждый раз, когда конфиг будет меняться, он будет делать бэкап предыдущей версии в тойже директории.
+    tags: elastic
+  - name: Create Elastic config
+    become: yes
+    template:
+      src: elasticsearch.yml.j2
+      dest: "{{ elastic_home }}/config/elasticsearch.yml"
+      backup: true #каждый раз, когда конфиг будет меняться, он будет делать бэкап предыдущей версии в тойже директории.
+      owner: elasticsearch #who owner of files
+      group: elasticsearch
+      mode: 0755
+    tags: elastic
+  - name: Create Systemd unit file
+    become: yes
+    template:
+      src: elasticsearch.service.j2
+      dest: /etc/systemd/system/elasticsearch.service
+      owner: root
+      group: root
+      mode: 0644
     tags: elastic

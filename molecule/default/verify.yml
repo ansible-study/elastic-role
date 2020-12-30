@@ -10,4 +10,4 @@
 #     than: true
     shell:
       cmd: /opt/elastic/7.10.1/bin/elasticsearch --version
-    changed_when: false
+    changed_when: false #говорит, что от задачи не должно быть изменений

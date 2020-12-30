@@ -1,5 +1,7 @@
+#тестовый playbook для запуска роли localhost
+localhost
 ---
 - hosts: localhost
   remote_user: root
   roles:
-    - roles
+    - roles2

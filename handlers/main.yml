@@ -1,3 +1,13 @@
 ---
 # handlers file for roles
 # директория в которой содержатся все handlers для данной роли (обычно для запуска сервиса по завершению настройки)
+  - name: reload systemd configuration
+    become: yes
+    systemd:
+      daemons_reload: true
+
+#Reatart service and ensure it is aenable
+  - name: restart Elasticsearch
+    become: yes
+    service: name=elasticsearch state=restarted enabled=yes
+          

@@ -1,6 +1,19 @@
 ---
 - name: Converge
   hosts: all
+  pre_tasks: 
+    - name: Install iproute for Red_Hat
+      ansible.builtin.yum: 
+        name: iproute
+        #update_cache: yes
+        state: present
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat'
+    - name: Install iproute2 for Ubuntu
+      ansible.builtin.apt: 
+        name: iproute2
+        state: present
+        #update_cache: yes
+      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'  
   tasks:
     - name: "Include roles"
       include_role:

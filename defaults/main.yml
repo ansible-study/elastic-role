@@ -3,3 +3,12 @@
 #Переменые записанные в default имеют самый  невысокий приоритет при переопределении. 
   elastic_version: "7.10.1"
   elastic_home: "/opt/elastic/{{ elastic_version }}"
+
+# elastic config variables
+  #cluster.name  
+  cluster_name: "elk_elastic-cluster"
+
+  # IP-addresses
+  es_host_ip: "172.21.0.2"
+  kibana_host_ip: "172.21.0.3"
+  logstash_host_ip: "172.21.0.4"
